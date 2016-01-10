@@ -8,7 +8,7 @@ function! FindProjectPath(path)
 endfunction
 
 function! GetFolders(path)
-    let command = "ls -d " . a:path . "*/"
+    let command = "ls -F " . a:path . " | grep / "
     return systemlist(command)
 endfunction
 
@@ -28,11 +28,10 @@ function! FullPath(name)
 endfunction
 
 function! UpdatePath()
-    let path = FindProjectPath(expand('%:p'))
+    let path = FindProjectPath(getcwd())
     let folders = GetFolders(path)
     let ignoredFolders = GetIgnoredFolders(path)
     let includedFolders = FilterList(ignoredFolders, folders)
-    echo includedFolders
     let combinedPath = path . "," . CombinePathsIntoPath(includedFolders)
     let &path = combinedPath
 endfunction
@@ -45,19 +44,6 @@ function! CombinePathsIntoPath(paths)
     endif
 endfunction
 
-function! FilterList(itemsToExclude, list)
-    if len(a:list) == 0
-        return []
-    elseif index(a:itemsToExclude, a:list[0]) == -1
-        return [a:list[0]] + FilterList(a:itemsToExclude, a:list[1:])
-    else
-        return FilterList(a:itemsToExclude, a:list[1:])
-    endif
-endfunction
-
-function! Echo(value)
-    echo a:value
-endfunction
 
 function! Map(Fun, list)
     if len(a:list) == 0
@@ -67,12 +53,13 @@ function! Map(Fun, list)
     endif
 endfunction
 
-function! Filter(Predicate, list)
+function! FilterList(itemsToExclude, list)
     if len(a:list) == 0
         return []
-    else if a:Predicate(a:list[0])
-        return [list[0]] + Filter(Predicate, a:list[1:])
+    elseif index(a:itemsToExclude, a:list[0]) == -1
+        return [a:list[0]] + FilterList(a:itemsToExclude, a:list[1:])
     else
-        return Filter(Predicate, a:list[1:])
+        return FilterList(a:itemsToExclude, a:list[1:])
     endif
 endfunction
+call UpdatePath()
