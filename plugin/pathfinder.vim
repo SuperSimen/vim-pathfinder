@@ -1,3 +1,4 @@
+
 function! UpdatePath()
     let path = FindProjectPath(fnamemodify(getcwd(), ':p'))
     let folders = GetFolders(path)
