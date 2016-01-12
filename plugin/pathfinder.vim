@@ -21,7 +21,7 @@ function! s:GetFolders(path)
     let command = "ls -F " . a:path . " | grep / "
     let folders = systemlist(command)
     let basedFolders = s:AddBasePath(a:path, folders)
-    return s:Map(function('FullPath'), basedFolders)
+    return s:Map(function('s:FullPath'), basedFolders)
 endfunction
 
 function! s:GetIgnoredFolders(path)
@@ -32,7 +32,7 @@ function! s:GetIgnoredFolders(path)
         let folders = systemlist(command)
     endif
     let basedFolders = s:AddBasePath(a:path, folders)
-    return s:Map(function('FullPath'), basedFolders)
+    return s:Map(function('s:FullPath'), basedFolders)
 endfunction
 
 function! s:AddBasePath(path, list)
@@ -67,7 +67,7 @@ function! s:FilterList(itemsToExclude, list)
     if len(a:list) == 0
         return []
     elseif index(a:itemsToExclude, a:list[0]) == -1
-        return [a:list[0]] + FilterList(a:itemsToExclude, a:list[1:])
+        return [a:list[0]] + s:FilterList(a:itemsToExclude, a:list[1:])
     else
         return s:FilterList(a:itemsToExclude, a:list[1:])
     endif
