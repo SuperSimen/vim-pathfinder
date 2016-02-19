@@ -18,10 +18,15 @@ function! s:FindProjectPath(path)
 endfunction
 
 function! s:GetFolders(path)
-    let command = "ls -F " . a:path . " | grep / "
-    let folders = systemlist(command)
+    let command = "ls -F " . a:path . " | grep '/\\|@' "
+    let foldersAndLinks = systemlist(command)
+		let folders = s:Map(function('s:LinkToFolder'), foldersAndLinks)
     let basedFolders = s:AddBasePath(a:path, folders)
     return s:Map(function('s:FullPath'), basedFolders)
+endfunction
+
+function! s:LinkToFolder(linkOrFolder)
+	return substitute(a:linkOrFolder, '@', '/', '')
 endfunction
 
 function! s:GetIgnoredFolders(path)
