@@ -78,3 +78,6 @@ function! s:FilterList(itemsToExclude, list)
     endif
 endfunction
 call s:UpdatePath()
+
+com! FindPath :call s:UpdatePath()
+com! -nargs=1 Cd :cd <args> | FindPath
