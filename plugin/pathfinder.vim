@@ -19,8 +19,8 @@ endfunction
 
 function! s:GetFolders(path)
     let command = "ls -F " . a:path . " | grep '/\\|@' "
-    let foldersAndLinks = systemlist(command)
-		let folders = s:Map(function('s:LinkToFolder'), foldersAndLinks)
+    let foldersAndLinks = split(system(command))
+    let folders = s:Map(function('s:LinkToFolder'), foldersAndLinks)
     let basedFolders = s:AddBasePath(a:path, folders)
     return s:Map(function('s:FullPath'), basedFolders)
 endfunction
@@ -34,7 +34,7 @@ function! s:GetIgnoredFolders(path)
     let command = "cat " . gitignore . " | grep '/$'"
     let folders = []
     if filereadable(gitignore)
-        let folders = systemlist(command)
+        let folders = split(system(command))
     endif
     let basedFolders = s:AddBasePath(a:path, folders)
     return s:Map(function('s:FullPath'), basedFolders)
