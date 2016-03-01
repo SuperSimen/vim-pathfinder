@@ -80,4 +80,4 @@ endfunction
 call s:UpdatePath()
 
 com! FindPath :call s:UpdatePath()
-com! -nargs=1 Cd :cd <args> | FindPath
+com! -complete=dir -nargs=1 Cd :cd <args> | FindPath
