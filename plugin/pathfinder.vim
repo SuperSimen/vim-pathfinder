@@ -5,6 +5,10 @@ function! s:UpdatePath()
     let ignoredFolders = s:GetIgnoredFolders(path)
     let includedFolders = s:FilterList(ignoredFolders, folders)
     let combinedPath = path . "," . s:CombinePathsIntoPath(includedFolders)
+    if exists('g:pathfinder_include')
+        let combinedPath .= g:pathfinder_include
+    endif
+    echo combinedPath
     let &path = combinedPath
 endfunction
 
@@ -79,5 +83,5 @@ function! s:FilterList(itemsToExclude, list)
 endfunction
 call s:UpdatePath()
 
-com! FindPath :call s:UpdatePath()
-com! -complete=dir -nargs=1 Cd :cd <args> | FindPath
+com! UpdatePath :call s:UpdatePath()
+com! -complete=dir -nargs=? Cd :cd <args> | UpdatePath
