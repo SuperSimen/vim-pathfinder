@@ -3,20 +3,31 @@ function! s:UpdatePath()
     let path = s:FindProjectPath(fnamemodify(getcwd(), ':p'))
     let folders = s:GetFolders(path)
     let ignoredFolders = s:GetIgnoredFolders(path)
+    if exists('g:pathfinder_exclude')
+        let ignoredFolders += s:MakePaths(path, split(g:pathfinder_exclude, ','))
+    endif
     let includedFolders = s:FilterList(ignoredFolders, folders)
     let combinedPath = path . "," . s:CombinePathsIntoPath(includedFolders)
     if exists('g:pathfinder_include')
         let combinedPath .= g:pathfinder_include
     endif
-    echo combinedPath
     let &path = combinedPath
 endfunction
 
 function! s:FindProjectPath(path)
     let path = finddir('.git', a:path . ';~/')
-    if len(path)
-        let path = fnamemodify(path, ':h')
+
+    let lookForGit = 1
+    if exists('g:pathfinder_look_for_git')
+        let lookForGit = g:pathfinder_look_for_git
     endif
+
+    if len(path) && lookForGit
+        let path = fnamemodify(path, ':h')
+    else
+        let path = fnamemodify(a:path, ':p')
+    endif
+
     let path = fnamemodify(path, ':p')
     return path
 endfunction
@@ -25,8 +36,7 @@ function! s:GetFolders(path)
     let command = "ls -F " . a:path . " | grep '/\\|@' "
     let foldersAndLinks = split(system(command))
     let folders = s:Map(function('s:LinkToFolder'), foldersAndLinks)
-    let basedFolders = s:AddBasePath(a:path, folders)
-    return s:Map(function('s:FullPath'), basedFolders)
+    return s:MakePaths(a:path, folders)
 endfunction
 
 function! s:LinkToFolder(linkOrFolder)
@@ -34,14 +44,25 @@ function! s:LinkToFolder(linkOrFolder)
 endfunction
 
 function! s:GetIgnoredFolders(path)
+
+    let useGitignore = 1
+    if exists('g:pathfinder_use_gitignore')
+        let useGitignore = g:pathfinder_use_gitignore
+    endif
+
     let gitignore = a:path . '/.gitignore'
     let command = "cat " . gitignore . " | grep '/$'"
     let folders = []
-    if filereadable(gitignore)
+    if filereadable(gitignore) && useGitignore
         let folders = split(system(command))
     endif
-    let basedFolders = s:AddBasePath(a:path, folders)
-    return s:Map(function('s:FullPath'), basedFolders)
+    return s:MakePaths(a:path, folders)
+endfunction
+
+function! s:MakePaths(path, folders)
+    let basedFolders = s:AddBasePath(a:path, a:folders)
+    let mappedFolders = s:Map(function('s:FullPath'), basedFolders)
+    return mappedFolders
 endfunction
 
 function! s:AddBasePath(path, list)
