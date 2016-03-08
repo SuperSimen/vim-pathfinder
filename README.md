@@ -22,5 +22,5 @@ Use `/**` after the folder name to include subfolders. The path must be absolute
 
 ## Tips
 
-* `:set suffixesadd+=.js,.java` to help Vim recognize filenames without extensions.
-* `:set wildignorecase` to enable case insensetive file searching.
+* `set suffixesadd+=.js,.java` to help Vim recognize filenames without extensions.
+* `set wildignorecase` to enable case insensetive file searching.
