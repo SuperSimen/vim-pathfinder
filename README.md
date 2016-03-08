@@ -17,10 +17,6 @@ Include your own folders in the search path with `g:pathfinder_include`.
 let g:pathfinder_include='/home/supersimen/documents,/home/supersimen/Dropbox/**'
 ```
 
-```javascript
-let g:pathfinder_include='/home/supersimen/documents,/home/supersimen/Dropbox/**'
-```
-
 Use `/**` after the folder name to include subfolders. The path must be absolute, so using `~/` will not work.
 
 
