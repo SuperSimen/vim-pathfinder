@@ -1,33 +1,38 @@
 
+function! s:InitializaSettings()
+    if !exists('g:pathfinder_include')
+        let g:pathfinder_include = ''
+    endif
+    if !exists('g:pathfinder_exclude')
+        let g:pathfinder_exclude = ''
+    endif
+    if !exists('g:pathfinder_look_for_git')
+        let g:pathfinder_look_for_git = 1
+    endif
+    if !exists('g:pathfinder_use_gitignore')
+        let g:pathfinder_use_gitignore = 1
+    endif
+endfunction
+call s:InitializaSettings()
+
 function! s:UpdatePath()
     let path = s:FindProjectPath(fnamemodify(getcwd(), ':p'))
     let folders = s:GetFolders(path)
     let ignoredFolders = s:GetIgnoredFolders(path)
-    if exists('g:pathfinder_exclude')
-        let ignoredFolders += s:MakePaths(path, split(g:pathfinder_exclude, ','))
-    endif
+    let ignoredFolders += s:MakePaths(path, split(g:pathfinder_exclude, ','))
     let includedFolders = s:FilterList(ignoredFolders, folders)
     let combinedPath = path . "," . s:CombinePathsIntoPath(includedFolders)
-    if exists('g:pathfinder_include')
-        let combinedPath .= g:pathfinder_include
-    endif
+    let combinedPath .= g:pathfinder_include
     let &path = combinedPath
 endfunction
 
 function! s:FindProjectPath(path)
     let path = finddir('.git', a:path . ';~/')
-
-    let lookForGit = 1
-    if exists('g:pathfinder_look_for_git')
-        let lookForGit = g:pathfinder_look_for_git
-    endif
-
-    if len(path) && lookForGit
+    if len(path) && g:pathfinder_look_for_git
         let path = fnamemodify(path, ':h')
     else
         let path = fnamemodify(a:path, ':p')
     endif
-
     let path = fnamemodify(path, ':p')
     return path
 endfunction
@@ -44,16 +49,10 @@ function! s:LinkToFolder(linkOrFolder)
 endfunction
 
 function! s:GetIgnoredFolders(path)
-
-    let useGitignore = 1
-    if exists('g:pathfinder_use_gitignore')
-        let useGitignore = g:pathfinder_use_gitignore
-    endif
-
     let gitignore = a:path . '/.gitignore'
     let command = "cat " . gitignore . " | grep '/$'"
     let folders = []
-    if filereadable(gitignore) && useGitignore
+    if filereadable(gitignore) && g:pathfinder_use_gitignore
         let folders = split(system(command))
     endif
     return s:MakePaths(a:path, folders)
